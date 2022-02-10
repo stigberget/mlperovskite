@@ -16,10 +16,11 @@ class LossLogger(tfk.callbacks.Callback):
         self.figurative = figurative
 
         if(figurative):
-            self.val_loss_type,axlabel = self._self_loss_type()
-            self.floss,self.axloss = plt.figure()
+            self.val_loss_type,axlabel = self._set_loss_type()
+            self.floss,self.axloss = plt.subplots(1,1)
             self.axloss.set_xlabel("Epochs")
             self.axloss.set_ylabel(axlabel)
+            #self.floss.show()
 
         self.train_batch_nums = 0
         self.test_batch_nums = 0
@@ -55,12 +56,12 @@ class LossLogger(tfk.callbacks.Callback):
     def on_epoch_end(self,epoch,logs):
         
         
-        self.train_batch_log_intervals.append(np.linspace(epoch-1,epoch,self.train_batch_nums))
-        self.test_batch_log_intervals.append(np.linspace(epoch-1,epoch,self.test_batch_nums))
+        self.train_batch_log_intervals = np.linspace(0,epoch+1,self.train_batch_nums,axis=0).reshape((self.train_batch_nums,1))
+        self.test_batch_log_intervals = np.linspace(0,epoch+1,self.test_batch_nums,axis=0).reshape((self.test_batch_nums,1))
 
         self.epochs.append(epoch)
         self.loss.append(logs[self.loss_type])
-        self.val_loss.append(logs[self.val_loss_type])
+        self.val_loss.append(logs["val_loss"])
 
         if(self.figurative):
 
@@ -70,19 +71,15 @@ class LossLogger(tfk.callbacks.Callback):
                 self.axloss.plot(self.epochs,self.loss,'-b',self.epochs,self.val_loss,'-r')
                 self.axloss.plot(self.train_batch_log_intervals,self.train_batch_loss,'-b',alpha=0.4)
                 self.axloss.plot(self.test_batch_log_intervals,self.test_batch_loss,'-r',alpha=0.4)
-                self.axloss.legend("Training Loss","Validation Loss")
-        
-        self.train_batch_nums = 0
-        self.train_batch_nums = 0
+                self.axloss.legend(["Training Loss","Validation Loss"])    
 
-            
 
     def on_train_batch_end(self,batch,logs):
         self.train_batch_nums += 1
         self.train_batch_loss.append(logs[self.loss_type])
     
     def on_test_batch_end(self,batch,logs):
-        self.test_batch_nums += 1
+        self.test_batch_nums += 1 
         self.test_batch_loss.append(logs[self.loss_type])
     
         

@@ -1,7 +1,7 @@
 
 import numpy as np
 from utils.callbacks import LossLogger
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import tensorflow as tf
 
 # Alias important packages/modules
@@ -28,7 +28,7 @@ class QuantumMLModels(tfk.Sequential):
     def store_history(self,history):
         self.history = history
 
-    def prediction_viewer(self,X_sample,y_truth,sample_dims):
+    def parity_patch_plot(self,X_sample,y_truth,sample_dims=0):
         """
         Args: 
         
@@ -38,12 +38,42 @@ class QuantumMLModels(tfk.Sequential):
 
         """
 
-        y_predict = self.predict(X_sample)
+        Y_predict = self.predict(X_sample)
 
-        plt.plot(y_truth,y_truth,'-k')
-        plt.plot(y_predict,y_truth,'bo')
-        plt.xlabel('Prediction')
-        plt.ylabel('True Value')
+        if(Y_predict.shape[1] != 1):
+            y_predict = Y_predict[:,sample_dims].flatten()
+        else:
+            y_predict = Y_predict.flatten()
 
+        fig, ax = plt.subplots()
+
+        ax.hist2d(y_predict.flatten(),y_truth[:,sample_dims].flatten(), bins=64, cmap='Blues', alpha=0.9)
+
+        ax.set_xlim(ax.get_ylim())
+        ax.set_ylim(ax.get_xlim())
+
+        ax.plot(ax.get_xlim(), ax.get_xlim(), 'r--')
+        
+        ax.set_xlabel('Predicted Value')
+        ax.set_ylabel('True Value')
+    
+    def parity_plot(self,X_sample,y_truth,sample_dims=0):
+
+        Y_predict = self.predict(X_sample)
+
+        if(Y_predict.shape[1] != 1):
+            y_predict = Y_predict[:,sample_dims].flatten()
+        else:
+            y_predict = Y_predict.flatten()
+
+        fig,ax = plt.subplots()
+
+        ax.plot(y_truth[:,sample_dims],y_truth[:,sample_dims],'r-')
+        ax.plot(y_predict,y_truth[:,sample_dims],'b.')
+
+        ax.set_xlabel('Predicted Value')
+        ax.set_ylabel('True Value')
+
+class RFStackedNetworks()
 
 
